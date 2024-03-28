@@ -28,10 +28,8 @@ class AuthController extends Controller
             DB::beginTransaction();
             $email = $request->get('email');
             if (User::where('email', $email)->count() > 0) {
-                $msg = 'Já existe uma conta com este e-mail cadastrado no sistema. Faça login.';
-                if (!$request->has('email')) $msg = 'Por favor, informe um e-mail.';
-                DB::rollback();
-                return response()->json(['error' => 'login_error', 'message' => $msg], 401);
+                $msg = 'Já existe uma conta com este e-mail cadastrado no sistema. E não é possivel criar outro.';
+                return response()->json(['error' => 'login error', 'message' => $msg], 401);
             }
             $v = Validator::make($request->all(), [
                 'email' => 'required|email|unique:users',
@@ -43,25 +41,28 @@ class AuthController extends Controller
                     'errors' => $v->errors()
                 ], 422);
             }
-
-            $user = new User;
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = bcrypt($request->password);
-            $user->save();
+            $params = $request->all();
+            $params['password'] = bcrypt($request->password);
+            $user = User::create($params);
             DB::commit();
             $credentials = $request->only('email', 'password');
             $token = Auth::guard('api')->attempt($credentials);
             return response()->json(['success' => true, 'token' => $token], 200);
         } catch (Exception $e) {
             DB::rollback();
-            Log::debug("Erro em register", [
-                'dados' => $request->all(),
+            $errorData = [
                 'arquivo' => $e->getFile(),
                 'linha' => $e->getLine(),
                 'erro' => $e->getMessage(),
-            ]);
-            return response()->json(['error' => 'register_error', 'message' => 'Ocorreu um erro ao fazer cadastro, verifique os dados e tente novamente.'], 401);
+                'dados' => $request->all(),
+              ];
+              Log::channel("auth")->error("Erro register", $errorData);
+              $responseData = [
+                  'status' => false,
+                  'mensage' => 'Ocorreu um erro ao fazer cadastro, verifique os dados e tente novamente.',
+                  'error' => $errorData,
+              ];
+            return response()->json(['success' => false, 'responseData' => $responseData], 500);
         }
     }
 
@@ -69,12 +70,10 @@ class AuthController extends Controller
     {
         try {
                 $credentials = $request->only('email', 'password');
-
                 $checkUserExists = User::where('email', $request->get('email'))->first();
                 if (!$checkUserExists) {
                     return response()->json(['status' => 'error', 'message' => 'E-mail não encontrado'], 422);
                 }
-
                 if (Auth::attempt($credentials)) {
                     $this->guard()->attempt($credentials);
                     $token = Auth::guard('api')->attempt($credentials);
@@ -83,13 +82,19 @@ class AuthController extends Controller
                     return response()->json(['status' => 'error', 'message' => 'Credenciais inválidas'], 401);
                 }
         } catch (Exception $e) {
-            Log::debug("Erro login", [
-                'dados' => $request->all(),
+            $errorData = [
                 'arquivo' => $e->getFile(),
                 'linha' => $e->getLine(),
                 'erro' => $e->getMessage(),
-            ]);
-            return response()->json(['error' => $e->getMessage(), 'message' => 'Dados incorretos ou usuário inexistente. Tente novamente mais tarde.'], 401);
+                'dados' => $request->all(),
+              ];
+              Log::channel("auth")->error("Erro Login", $errorData);
+              $responseData = [
+                  'status' => false,
+                  'mensage' => 'Dados incorretos ou usuário inexistente. Tente novamente mais tarde.',
+                  'error' => $errorData,
+              ];
+            return response()->json(['success' => false, 'responseData' => $responseData], 500);
         }
     }
 
@@ -102,47 +107,23 @@ class AuthController extends Controller
                 'data' => $user
             ]);
         } catch (Exception $e) {
-            Log::debug("Erro Auth user", [
+            $errorData = [
                 'arquivo' => $e->getFile(),
                 'linha' => $e->getLine(),
                 'erro' => $e->getMessage(),
-            ]);
-            return response()->json(['error' => $e->getMessage(), 'message' => 'Tente realizar o login novamente.'], 401);
+              ];
+              Log::channel("auth")->error("Erro Auth user", $errorData);
+              $responseData = [
+                  'status' => false,
+                  'mensage' => 'Tente realizar o login novamente.',
+                  'error' => $errorData,
+              ];
+            return response()->json(['success' => false, 'responseData' => $responseData], 500);
         }
     }
 
     private function guard()
     {
         return Auth::guard();
-    }
-    public function teste(Request $request)
-    {
-        $params = $request->all();
-        DB::beginTransaction();
-        try {
-          //code...
-          DB::commit();
-          $responseData = [
-              'status' => true,
-              'mensage' => 'Teste Funcionando.',
-              'uahsua' => $tet,
-          ];
-          DB::rollback();
-          return response()->json($responseData, 200, [], JSON_UNESCAPED_UNICODE);
-        } catch (\Exception $e) {
-          //throw;
-          DB::rollback();
-          Log::channel("tasks")->error("Erro > register", [
-              'arquivo' => $e->getFile(),
-              'linha' => $e->getLine(),
-              'erro' => $e->getMessage(),
-          ]);
-          $responseData = [
-            'status' => true,
-            'mensage' => 'Já existe um usuário com este e-mail já cadastrado.',
-          ];
-          dd($responseData);
-          return response()->json($responseData, 200, [], JSON_UNESCAPED_UNICODE);
-        }
     }
 }

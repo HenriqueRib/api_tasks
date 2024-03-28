@@ -15,7 +15,7 @@ class Task extends Model
         'name',
         'description',
         'deadline',
-        'status', // 0: A fazer, 1: Em andamento, 2: Concluído
+        'status',
         'priority', // 0: Baixa, 1: Média, 2: Alta
         'tag',
     ];

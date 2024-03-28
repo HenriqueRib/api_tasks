@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 
-Route::get('teste', [ClientController   ::class, 'teste']);
 Route::group(['prefix' => 'users'], function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
@@ -18,11 +17,13 @@ Route::group(['prefix' => 'password'], function () {
 });
 
 Route::group(['prefix' => 'tasks'], function () {
-    Route::post('/create', [ClientController::class, 'createTask']);
-    Route::put('/{id}/update', [ClientController::class, 'updateTask']);
-    Route::delete('/delete', [ClientController::class, 'deleteTask']);
-    Route::get('/{id}', [ClientController::class, 'showTask']);
-    Route::get('/all', [ClientController::class, 'listAllTasks']);
+    Route::get('/all', [ClientController::class, 'listAll']);
+    Route::group(['prefix' => 'task'], function () {
+        Route::post('/create', [ClientController::class, 'create']);
+        Route::get('/{id}', [ClientController::class, 'show']);
+        Route::put('/{id}/update', [ClientController::class, 'update']);
+        Route::delete('/delete', [ClientController::class, 'delete']);
+    });
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

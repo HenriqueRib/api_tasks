@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->longText('description')->nullable();
             $table->date('deadline')->nullable();
-            $table->integer('status')->nullable()->comment('0: A fazer, 1: Em andamento, 2: Concluído');
+            $table->string('status')->nullable();
             $table->integer('priority')->nullable()->comment('0: Baixa, 1: Média, 2: Alta');
             $table->string('tag')->nullable();
             $table->timestamps();

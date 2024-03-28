@@ -127,6 +127,13 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'auth' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/auth/log.log'),
+            'level' => 'debug',
+            'days' => 120,
+        ],
+
         'tasks' => [
             'driver' => 'daily',
             'path' => storage_path('logs/tasks/log.log'),
