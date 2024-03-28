@@ -18,7 +18,7 @@ Route::group(['prefix' => 'password'], function () {
 
 Route::group(['prefix' => 'tasks'], function () {
     Route::get('/all', [TaskController::class, 'listAll']);
-    Route::group(['prefix' => 'task'], function () {
+    Route::group(['prefix' => 'task', 'middleware' => 'auth:api'], function () {
         Route::post('/create', [TaskController::class, 'create']);
         Route::get('/{id}', [TaskController::class, 'show']);
         Route::put('/{id}/update', [TaskController::class, 'update']);
