@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ClientController;
+use App\Http\Controllers\TaskController;
 
 Route::group(['prefix' => 'users'], function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -17,12 +17,12 @@ Route::group(['prefix' => 'password'], function () {
 });
 
 Route::group(['prefix' => 'tasks'], function () {
-    Route::get('/all', [ClientController::class, 'listAll']);
+    Route::get('/all', [TaskController::class, 'listAll']);
     Route::group(['prefix' => 'task'], function () {
-        Route::post('/create', [ClientController::class, 'create']);
-        Route::get('/{id}', [ClientController::class, 'show']);
-        Route::put('/{id}/update', [ClientController::class, 'update']);
-        Route::delete('/delete', [ClientController::class, 'delete']);
+        Route::post('/create', [TaskController::class, 'create']);
+        Route::get('/{id}', [TaskController::class, 'show']);
+        Route::put('/{id}/update', [TaskController::class, 'update']);
+        Route::delete('/delete', [TaskController::class, 'delete']);
     });
 });
 
