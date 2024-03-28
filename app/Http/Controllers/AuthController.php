@@ -10,9 +10,17 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 
-
 class AuthController extends Controller
 {
+     /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login']]);
+    }
 
     public function register(Request $request)
     {
@@ -67,16 +75,11 @@ class AuthController extends Controller
 
                 if (Auth::attempt($credentials)) {
                     $this->guard()->attempt($credentials);
-                    return response()->json(['status' => 'success', 'token' => Auth::check()], 200);
+                    $token = Auth::guard('api')->attempt($credentials);
+                    return response()->json(['status' => 'success', 'check' => Auth::check(), 'token' => $token], 200)->header('Authorization', $token);
                 } else {
                     return response()->json(['status' => 'error', 'message' => 'Credenciais inválidas'], 401);
                 }
-
-
-                return response()->json(['status' => 'success', 'token' => Auth::check()], 200);
-                
-                //->header('Authorization', $token);
-
         } catch (Exception $e) {
             Log::debug("Erro login", [
                 'dados' => $request->all(),
@@ -87,13 +90,23 @@ class AuthController extends Controller
             return response()->json(['error' => $e->getMessage(), 'message' => 'Dados incorretos ou usuário inexistente. Tente novamente mais tarde.'], 401);
         }
     }
+
     public function user(Request $request)
     {
-        $user = User::find(Auth::user()->id);
-        return response()->json([
-            'status' => 'success',
-            'data' => $user
-        ]);
+        try {
+            $user = User::find(Auth::user()->id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $user
+            ]);
+        } catch (Exception $e) {
+            Log::debug("Erro Auth user", [
+                'arquivo' => $e->getFile(),
+                'linha' => $e->getLine(),
+                'erro' => $e->getMessage(),
+            ]);
+            return response()->json(['error' => $e->getMessage(), 'message' => 'Tente realizar o login novamente.'], 401);
+        }
     }
     private function guard()
     {

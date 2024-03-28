@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'jwt',
+            'provider' => 'users',
+            'hash' => false, // Isso é importante para evitar que o Laravel tente re-hashing do token
+            'expiry_in_minutes' => 60 * 60 * 40, // Define o tempo de vida do token JWT em minutos
+          ],
     ],
 
     /*
