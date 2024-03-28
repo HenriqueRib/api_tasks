@@ -18,11 +18,11 @@ Route::group(['prefix' => 'password'], function () {
 });
 
 Route::group(['prefix' => 'tasks'], function () {
-    Route::get('/all', [ClientController::class, 'listAllTasks']);
-    Route::get('/{id}', [ClientController::class, 'showTask']);
     Route::post('/create', [ClientController::class, 'createTask']);
     Route::put('/{id}/update', [ClientController::class, 'updateTask']);
     Route::delete('/delete', [ClientController::class, 'deleteTask']);
+    Route::get('/{id}', [ClientController::class, 'showTask']);
+    Route::get('/all', [ClientController::class, 'listAllTasks']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

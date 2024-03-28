@@ -19,7 +19,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
     public function register(Request $request)
@@ -50,7 +50,9 @@ class AuthController extends Controller
             $user->password = bcrypt($request->password);
             $user->save();
             DB::commit();
-            return response()->json(['success' => true], 200);
+            $credentials = $request->only('email', 'password');
+            $token = Auth::guard('api')->attempt($credentials);
+            return response()->json(['success' => true, 'token' => $token], 200);
         } catch (Exception $e) {
             DB::rollback();
             Log::debug("Erro em register", [
@@ -108,6 +110,7 @@ class AuthController extends Controller
             return response()->json(['error' => $e->getMessage(), 'message' => 'Tente realizar o login novamente.'], 401);
         }
     }
+
     private function guard()
     {
         return Auth::guard();
