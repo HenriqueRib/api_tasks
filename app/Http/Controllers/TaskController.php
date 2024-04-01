@@ -114,7 +114,8 @@ class TaskController extends Controller
     public function delete(Request $request){
       try {
         $params = $request->all();
-        $task = Task::find($params['id']);
+        $id = $params['id'];
+        $task = Task::find($id);
         if(isset($task)){
           $task->delete();
           return response()->json(['success' => true, 'message' => "A tarefa $task->name foi deletada com sucesso!"], 200); 
