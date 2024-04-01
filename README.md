@@ -38,15 +38,34 @@ Objetivo: integração com aplicativo mobile desenvolvido em flutter.
 
 ## Uso
 
+POST - register
 ![register](images/_1.png)
+
+POST - register 401 - e-mail já cadastrado
 ![register 401 - e-mail já cadastrado](images/_2.png)
+
+POST - login
 ![login](images/_3.png)
+
+GET - informação de usuario
 ![informação de usuario](images/_4.png)
+
+GET - all tasks
 ![all tasks](images/_5.png)
+
+POST - create task
 ![create task](images/_6.png)
+
+GET - show task
 ![show task](images/_7.png)
+
+PUT - update task
 ![update task](images/_8.png)
+
+PUT - update task sem token Bearer - Rotas protegidas por middleware
 ![update task sem token Bearer - Rotas protegidas por middleware](images/_9.png)
+
+DELETE - delete task
 ![delete task](images/_10.png)
 
 ## Licença
